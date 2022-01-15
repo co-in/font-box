@@ -6,7 +6,7 @@ package main
 import (
 	"embed"
 	"fmt"
-	"font-metric"
+	"github.com/co-in/font-box"
 	"golang.org/x/image/font"
 )
 
@@ -21,12 +21,12 @@ func main() {
 		degree   = 45.0
 	)
 
-	fnt, err := font_metric.NewFromFS(content, "font_test.ttf")
+	fb, err := font-box.NewFromFS(content, "font_test.ttf")
 	if err != nil {
 		panic(err)
 	}
 
-	g, err := fnt.Metric(chr, fontSize, dpi, font.HintingFull)
+	g, err := fb.Glyph(chr, fontSize, dpi, font.HintingFull)
 	if err != nil {
 		panic(err)
 	}

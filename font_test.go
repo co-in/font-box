@@ -1,10 +1,17 @@
-package font_metric_test
+package font_box_test
 
 import (
+	"bytes"
 	"embed"
-	"font-metric"
+	"github.com/co-in/font-box"
+	"github.com/co-in/font-box/iface"
 	"golang.org/x/image/font"
 	"gopkg.in/check.v1"
+	"image"
+	"image/color"
+	"image/png"
+	"io"
+	"os"
 	"testing"
 )
 
@@ -39,12 +46,36 @@ var tests = []struct {
 	{chr: 'l', width: 17, height: 46, size: 66, dpi: 72, wRotate: 43, hRotate: 46, angle: 40, x: 0, y: 0},
 }
 
-func (s *fontSuite) TestGlyphMetric(c *check.C) {
-	fnt, err := font_metric.NewFromFS(content, "font_test.ttf")
+var fnt iface.IFont
+
+func (s *fontSuite) SetUpSuite(c *check.C) {
+	var err error
+	fnt, err = font_box.NewFromFS(content, "font_test.ttf")
+	c.Assert(err, check.IsNil)
+}
+
+func (s *fontSuite) TestRender(c *check.C) {
+	g, err := fnt.Glyph('g', 50, 72, font.HintingFull)
+	c.Assert(err, check.IsNil)
+	img, err := g.Render(45, image.NewUniform(&color.NRGBA{
+		R: 255,
+		A: 255,
+	}))
 	c.Assert(err, check.IsNil)
 
+	buf := new(bytes.Buffer)
+	err = png.Encode(buf, img)
+	c.Assert(err, check.IsNil)
+
+	//TODO Check
+	i, _ := os.Create("image.png")
+	defer i.Close()
+	_, _ = io.Copy(i, bytes.NewReader(buf.Bytes()))
+}
+
+func (s *fontSuite) TestGlyphMetric(c *check.C) {
 	for _, test := range tests {
-		g, err := fnt.Metric(test.chr, test.size, test.dpi, font.HintingFull)
+		g, err := fnt.Glyph(test.chr, test.size, test.dpi, font.HintingFull)
 		c.Assert(err, check.IsNil)
 		c.Assert(g.Width(), check.Equals, test.width)
 		c.Assert(g.Height(), check.Equals, test.height)
