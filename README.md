@@ -21,7 +21,7 @@ func main() {
 		degree   = 45.0
 	)
 
-	fb, err := font-box.NewFromFS(content, "font_test.ttf")
+	fb, err := font_box.NewFromFS(content, "font_test.ttf")
 	if err != nil {
 		panic(err)
 	}
