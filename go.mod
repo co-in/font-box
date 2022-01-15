@@ -1,4 +1,4 @@
-module github.com/co-in/font-metric
+module font-metric
 
 go 1.17
 
