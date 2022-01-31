@@ -2,7 +2,6 @@ package font_box
 
 import (
 	"errors"
-	"github.com/co-in/font-box/iface"
 	"github.com/disintegration/imaging"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
@@ -20,6 +19,18 @@ const (
 	magicDPI         = 72
 	magicDPI2        = 64.0
 )
+
+type IFont interface {
+	Glyph(r rune, fontSize, dpi float64, hinting font.Hinting) (IFontBox, error)
+}
+
+type IFontBox interface {
+	Render(angle float64, textColor *image.Uniform) (*image.NRGBA, error)
+	BoxSizeWithRotate(angle float64) (width int, height int)
+	Width() int
+	Height() int
+	BasePoint() (x int, y int)
+}
 
 type cacheLevelHinting map[font.Hinting]*fontBox
 type cacheLevelDPI map[float64]cacheLevelHinting
@@ -92,14 +103,14 @@ type fontBuf struct {
 	cache    map[rune]cacheLevelSize
 }
 
-func New(fnt *truetype.Font) iface.IFont {
+func New(fnt *truetype.Font) IFont {
 	return &fontBuf{
 		fnt:   fnt,
 		cache: make(map[rune]cacheLevelSize),
 	}
 }
 
-func NewFromFS(fs fs.ReadFileFS, filename string) (iface.IFont, error) {
+func NewFromFS(fs fs.ReadFileFS, filename string) (IFont, error) {
 	fontBytes, err := fs.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -117,7 +128,7 @@ func NewFromFS(fs fs.ReadFileFS, filename string) (iface.IFont, error) {
 	return New(f), nil
 }
 
-func (m *fontBuf) Glyph(r rune, fontSize, dpi float64, hinting font.Hinting) (iface.IFontBox, error) {
+func (m *fontBuf) Glyph(r rune, fontSize, dpi float64, hinting font.Hinting) (IFontBox, error) {
 	var ok bool
 	_, ok = m.cache[r]
 	if !ok {

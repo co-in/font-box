@@ -1,17 +1,12 @@
 package font_box_test
 
 import (
-	"bytes"
 	"embed"
 	"github.com/co-in/font-box"
-	"github.com/co-in/font-box/iface"
 	"golang.org/x/image/font"
 	"gopkg.in/check.v1"
 	"image"
 	"image/color"
-	"image/png"
-	"io"
-	"os"
 	"testing"
 )
 
@@ -46,7 +41,7 @@ var tests = []struct {
 	{chr: 'l', width: 17, height: 46, size: 66, dpi: 72, wRotate: 43, hRotate: 46, angle: 40, x: 0, y: 0},
 }
 
-var fnt iface.IFont
+var fnt font_box.IFont
 
 func (s *fontSuite) SetUpSuite(c *check.C) {
 	var err error
@@ -61,16 +56,16 @@ func (s *fontSuite) TestRender(c *check.C) {
 		R: 255,
 		A: 255,
 	}))
-	c.Assert(err, check.IsNil)
+	c.Assert(img, check.IsNil)
+	c.Assert(err, check.NotNil)
 
-	buf := new(bytes.Buffer)
-	err = png.Encode(buf, img)
-	c.Assert(err, check.IsNil)
-
-	//TODO Check
-	i, _ := os.Create("image.png")
-	defer i.Close()
-	_, _ = io.Copy(i, bytes.NewReader(buf.Bytes()))
+	////TODO Check
+	//buf := new(bytes.Buffer)
+	//err = png.Encode(buf, img)
+	//c.Assert(err, check.IsNil)
+	//f, _ := os.Create("image.png")
+	//defer func() { _ = f.Close() }()
+	//_, _ = io.Copy(f, bytes.NewReader(buf.Bytes()))
 }
 
 func (s *fontSuite) TestGlyphMetric(c *check.C) {
